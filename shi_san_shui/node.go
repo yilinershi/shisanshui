@@ -32,28 +32,61 @@ func (this *Node) String() string {
 	return desc
 }
 
-//Compare true：一样大或是自己比别人大，false:自己经别人小
-func (this *Node) Compare(other *Node) bool {
-	if this.normalType == other.normalType {
+//CompareInter true：一样大或是自己比别人大，false:自己经别人小
+func (this *Node) CompareInter(other *Node) CompareResult {
+
+	if this.normalType > other.normalType{
+		return Better
+	}else if this.normalType < other.normalType{
+		return Worse
+	}else {
 		switch this.normalType {
 		case WU_LONG, TONG_HUA_SHUN, TONG_HUA, SHUN_ZI:
 			return ComparePokerScore(this.pokers, other.pokers)
 		case DUI_ZI:
-			return this.dui.Compare(other.dui)
+			return this.dui.CompareInter(other.dui)
 		case LIANG_DUI:
-			return this.liangDui.Compare(other.liangDui)
+			return this.liangDui.CompareInter(other.liangDui)
 		case SAN_TIAO:
-			return this.sanTiao.Compare(other.sanTiao)
+			return this.sanTiao.CompareInter(other.sanTiao)
 		case TIE_ZHI:
-			return this.tieZhi.Compare(other.tieZhi)
+			return this.tieZhi.CompareInter(other.tieZhi)
 		case HU_LU:
-			return this.huLu.Compare(other.huLu)
+			return this.huLu.CompareInter(other.huLu)
+		default:
+			return Same
 		}
 	}
-	return this.normalType > other.normalType
 }
 
-func ComparePokerScore(pokers1, pokers2 []*Poker) bool {
+//CompareInter true：一样大或是自己比别人大，false:自己经别人小
+func (this *Node) CompareExternal(other *Node) CompareResult {
+
+	if this.normalType > other.normalType{
+		return Better
+	}else if this.normalType < other.normalType{
+		return Worse
+	}else {
+		switch this.normalType {
+		case WU_LONG, TONG_HUA_SHUN, TONG_HUA, SHUN_ZI:
+			return ComparePokerScore(this.pokers, other.pokers)
+		case DUI_ZI:
+			return this.dui.CompareExternal(other.dui)
+		case LIANG_DUI:
+			return this.liangDui.CompareExternal(other.liangDui)
+		case SAN_TIAO:
+			return this.sanTiao.CompareExternal(other.sanTiao)
+		case TIE_ZHI:
+			return this.tieZhi.CompareExternal(other.tieZhi)
+		case HU_LU:
+			return this.huLu.CompareExternal(other.huLu)
+		default:
+			return Same
+		}
+	}
+}
+
+func ComparePokerScore(pokers1, pokers2 []*Poker) CompareResult {
 	SortPoker(pokers1)
 	SortPoker(pokers2)
 	count1 := len(pokers1)
@@ -69,36 +102,87 @@ func ComparePokerScore(pokers1, pokers2 []*Poker) bool {
 		poker1 := pokers1[count1-i]
 		poker2 := pokers2[count2-i]
 		if poker1.Score != poker2.Score {
-			return poker1.Score > poker2.Score
+			if poker1.Score > poker2.Score {
+				return Better
+			} else {
+				return Worse
+			}
 		}
 	}
 
 	if count1 != count2 {
-		return count1 > count2
+		if count1 > count2 {
+			return Better
+		} else {
+			return Worse
+		}
 	}
 
 	//平局也是true
-	return true
+	return Same
 }
 
 type Dui struct {
-	duiScore int
+	duiScore int //对的牌的
 	dan1     int //最小的单
 	dan2     int //次小的单
 	dan3     int //最大的单
 }
 
-func (this *Dui) Compare(other *Dui) bool {
-	if this.duiScore != other.duiScore {
-		return this.duiScore > other.duiScore
+//CompareInter 对的内部比较，所有牌越大越好
+func (this *Dui) CompareInter(other *Dui) CompareResult {
+	if this.duiScore > other.duiScore {
+		return Better
+	} else if this.duiScore < other.duiScore {
+		return Worse
 	}
-	if this.dan3 != other.dan3 {
-		return this.dan3 > other.dan3
+
+	if this.dan3 < other.dan3 {
+		return Better
+	} else if this.dan3 > other.dan3 {
+		return Worse
 	}
-	if this.dan2 != other.dan2 {
-		return this.dan2 > other.dan2
+
+	if this.dan2 < other.dan2 {
+		return Better
+	} else if this.dan2 > other.dan2 {
+		return Worse
 	}
-	return this.dan1 > other.dan1
+
+	if this.dan1 < other.dan1 {
+		return Better
+	} else if this.dan1 > other.dan1 {
+		return Worse
+	}
+	return Same
+}
+
+//CompareExternal 对的外部比较，所有牌越大越好
+func (this *Dui) CompareExternal(other *Dui) CompareResult {
+	if this.duiScore > other.duiScore {
+		return Better
+	} else if this.duiScore < other.duiScore {
+		return Worse
+	}
+
+	if this.dan3 > other.dan3 {
+		return Better
+	} else if this.dan3 < other.dan3 {
+		return Worse
+	}
+
+	if this.dan2 > other.dan2 {
+		return Better
+	} else if this.dan2 < other.dan2 {
+		return Worse
+	}
+
+	if this.dan1 > other.dan1 {
+		return Better
+	} else if this.dan1 < other.dan1 {
+		return Worse
+	}
+	return Same
 }
 
 type LiangDui struct {
@@ -107,14 +191,44 @@ type LiangDui struct {
 	dan       int //最小的单
 }
 
-func (this *LiangDui) Compare(other *LiangDui) bool {
-	if this.dui2Score != other.dui2Score {
-		return this.dui2Score > other.dui2Score
+//CompareInter 两对的内部比较，对是越大越好，但单牌越小越好
+func (this *LiangDui) CompareInter(other *LiangDui) CompareResult {
+	if this.dui1Score > other.dui1Score {
+		return Better
+	} else if this.dui1Score < other.dui1Score {
+		return Worse
 	}
-	if this.dui1Score != other.dui1Score {
-		return this.dui1Score > other.dui1Score
+	if this.dui2Score > other.dui2Score {
+		return Better
+	} else if this.dui2Score < other.dui2Score {
+		return Worse
 	}
-	return this.dan > other.dan
+	if this.dan < other.dan {
+		return Better
+	} else if this.dan > other.dan {
+		return Worse
+	}
+	return Same
+}
+
+//CompareExternal 两对的外部比较，所有牌是越大越好
+func (this *LiangDui) CompareExternal(other *LiangDui) CompareResult {
+	if this.dui1Score > other.dui1Score {
+		return Better
+	} else if this.dui1Score < other.dui1Score {
+		return Worse
+	}
+	if this.dui2Score > other.dui2Score {
+		return Better
+	} else if this.dui2Score < other.dui2Score {
+		return Worse
+	}
+	if this.dan > other.dan {
+		return Better
+	} else if this.dan < other.dan {
+		return Worse
+	}
+	return Same
 }
 
 type SanTiao struct {
@@ -123,16 +237,34 @@ type SanTiao struct {
 	smallDanPai  int //小一点的单张
 }
 
-//Compare 优秀的三条是，三条越大越好，带的两张单牌越小越好
-func (this *SanTiao) Compare(other *SanTiao) bool {
-	if this.sanTiaoScore == other.sanTiaoScore {
-		if this.bigDanPai == other.bigDanPai {
-			return this.smallDanPai < other.smallDanPai
-		}
-		return this.bigDanPai < other.bigDanPai
+//CompareInter 三条的内部比较，三条越大越好，带的两张单牌越小越好
+func (this *SanTiao) CompareInter(other *SanTiao) CompareResult {
+	if this.sanTiaoScore > other.sanTiaoScore {
+		return Better
+	} else if this.sanTiaoScore < other.sanTiaoScore {
+		return Worse
 	}
+	if this.bigDanPai < other.bigDanPai {
+		return Better
+	} else if this.bigDanPai > other.bigDanPai {
+		return Worse
+	}
+	if this.smallDanPai < other.smallDanPai {
+		return Better
+	} else if this.smallDanPai > other.smallDanPai {
+		return Worse
+	}
+	return Same
+}
 
-	return this.sanTiaoScore > other.sanTiaoScore
+//CompareExternal 三条外部比较，三条只比三条的牌，
+func (this *SanTiao) CompareExternal(other *SanTiao) CompareResult {
+	if this.sanTiaoScore > other.sanTiaoScore {
+		return Better
+	} else if this.sanTiaoScore < other.sanTiaoScore {
+		return Worse
+	}
+	return Same
 }
 
 type TieZhi struct {
@@ -140,23 +272,57 @@ type TieZhi struct {
 	danPaiScore int
 }
 
-//Compare 铁支的只有内部比较，当铁支的点相同时，另一个单牌越小越好
-func (this *TieZhi) Compare(other *TieZhi) bool {
-	if this.tieZhiScore == other.tieZhiScore {
-		return this.danPaiScore < other.danPaiScore
+//CompareInter 铁支的只有内部比较，当铁支的点相同时，另一个单牌越小越好
+func (this *TieZhi) CompareInter(other *TieZhi) CompareResult {
+	if this.tieZhiScore > other.tieZhiScore {
+		return Better
+	} else if this.tieZhiScore < other.tieZhiScore {
+		return Worse
 	}
-	return this.tieZhiScore > other.tieZhiScore
+	if this.danPaiScore < other.danPaiScore {
+		return Better
+	} else if this.danPaiScore > other.danPaiScore {
+		return Worse
+	}
+	return Same
+}
+
+//CompareExternal 铁支的外部比较,外部比较不用比较单牌，因为别人不可能相同的铁支
+func (this *TieZhi) CompareExternal(other *TieZhi) CompareResult {
+	if this.tieZhiScore > other.tieZhiScore {
+		return Better
+	} else if this.tieZhiScore < other.tieZhiScore {
+		return Worse
+	}
+	return Same
 }
 
 type HuLu struct {
 	HuLuScore int
-	duiScore int
+	duiScore  int
 }
 
-//Compare 葫芦也只有内部比较，当葫芦的点相同时，另一个对越小越好
-func (this *HuLu) Compare(other *HuLu) bool {
-	if this.HuLuScore == other.HuLuScore {
-		return this.duiScore < other.duiScore
+//CompareInter 葫芦也只有内部比较，当葫芦的点相同时，另一个对越小越好
+func (this *HuLu) CompareInter(other *HuLu) CompareResult {
+	if this.HuLuScore > other.HuLuScore {
+		return Better
+	} else if this.HuLuScore < other.HuLuScore {
+		return Worse
 	}
-	return this.HuLuScore > other.HuLuScore
+	if this.duiScore < other.duiScore {
+		return Better
+	} else if this.duiScore > other.duiScore {
+		return Worse
+	}
+	return Same
+}
+
+//CompareExternal 葫芦也的外部比较，因为两个不同牌型，三条肯定不一样
+func (this *HuLu) CompareExternal(other *HuLu) CompareResult {
+	if this.HuLuScore > other.HuLuScore {
+		return Better
+	} else if this.HuLuScore < other.HuLuScore {
+		return Worse
+	}
+	return Same
 }

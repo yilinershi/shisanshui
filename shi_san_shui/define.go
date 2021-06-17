@@ -218,10 +218,10 @@ type DescHua string
 
 const (
 	NoneHuaDesc DescHua = ""
-	Hua1Desc DescHua ="♦"
-	Hua2Desc DescHua ="♣"
-	Hua3Desc DescHua ="♥"
-	Hua4Desc DescHua ="♠"
+	Hua1Desc    DescHua = "♦"
+	Hua2Desc    DescHua = "♣"
+	Hua3Desc    DescHua = "♥"
+	Hua4Desc    DescHua = "♠"
 )
 
 func (this DescHua) ToPokerHua() PokerHua {
@@ -243,19 +243,19 @@ type DescPoint string
 
 const (
 	DescPointNone DescPoint = ""
-	DescPointA DescPoint ="A"
-	DescPoint2 DescPoint ="2"
-	DescPoint3 DescPoint ="3"
-	DescPoint4 DescPoint ="4"
-	DescPoint5 DescPoint ="5"
-	DescPoint6 DescPoint ="6"
-	DescPoint7 DescPoint ="7"
-	DescPoint8 DescPoint ="8"
-	DescPoint9 DescPoint ="9"
-	DescPointT DescPoint ="T"
-	DescPointJ DescPoint ="J"
-	DescPointQ DescPoint ="Q"
-	DescPointK DescPoint ="K"
+	DescPointA    DescPoint = "A"
+	DescPoint2    DescPoint = "2"
+	DescPoint3    DescPoint = "3"
+	DescPoint4    DescPoint = "4"
+	DescPoint5    DescPoint = "5"
+	DescPoint6    DescPoint = "6"
+	DescPoint7    DescPoint = "7"
+	DescPoint8    DescPoint = "8"
+	DescPoint9    DescPoint = "9"
+	DescPointT    DescPoint = "T"
+	DescPointJ    DescPoint = "J"
+	DescPointQ    DescPoint = "Q"
+	DescPointK    DescPoint = "K"
 )
 
 func (this DescPoint) ToPokerPoint() PokerPoint {
@@ -290,3 +290,11 @@ func (this DescPoint) ToPokerPoint() PokerPoint {
 		return PokerNone
 	}
 }
+
+type CompareResult int
+
+const (
+	Same   CompareResult = 0
+	Better CompareResult = 1
+	Worse  CompareResult = 2
+)

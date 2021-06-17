@@ -60,7 +60,7 @@ func CalNormalResults(mainTree *Tree) []*ResultNormal {
 		tree2.CalNormal()
 		for _, node2 := range tree2.Nodes {
 			fmt.Println("middle=", node2.String())
-			if node1.Compare(node2) {
+			if node1.CompareExternal(node2)!=Worse {
 				bestScore := 0
 				switch node1.normalType {
 				case TONG_HUA_SHUN:
@@ -100,7 +100,7 @@ func CalNormalResults(mainTree *Tree) []*ResultNormal {
 					bestScore = bestScore + 1 + int(WU_LONG)
 				}
 
-				if node2.Compare(node3) {
+				if node2.CompareExternal(node3)!=Worse {
 					result := &ResultNormal{
 						Left:      node1,
 						Middle:    node2,
@@ -135,13 +135,13 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 			if result.BestScore > best.BestScore {
 				best = result
 				//case2:左最优
-				if result.Left.Compare(best.Left) {
+				if result.Left.CompareInter(best.Left)==Better {
 					best = result
 					//case3:中最优
-					if result.Middle.Compare(best.Middle) {
+					if result.Middle.CompareInter(best.Middle)==Better {
 						best = result
 						//case4:右最优
-						if result.Right.Compare(best.Right) {
+						if result.Right.CompareInter(best.Right)==Better {
 							best = result
 						}
 					}
