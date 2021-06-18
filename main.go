@@ -52,7 +52,6 @@ func main() {
 	}
 
 	for _, info := range infos {
-
 		info.TestPoker = GenTestPokers(info.Pokers)
 		if len(info.TestPoker) != 13 {
 			log.Printf("json配牌出错，类型：%s\n", info.Desc)

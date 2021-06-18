@@ -93,26 +93,33 @@ func (this *Tree) statisticsSpecialSunZi() {
 //statistics1234 统计单牌，对子，三条，铁支
 func (this *Tree) statistics1234() {
 	var isDanPai = func(poker *Poker) bool {
-		for _, ints := range this._listShunZi {
-			if poker.Score >= ints[0] && poker.Score <= ints[1] {
-				return true
+		//是否在顺子里
+		for _, shunZi := range this._listShunZi {
+			if poker.Score >= shunZi[0] && poker.Score <= shunZi[1] {
+				return false
 			}
 		}
 
-		for _, hua := range this._listTongHua {
-			if poker.Hua == hua {
-				return true
+		//该牌是否在同花里
+		for _, pokers := range this._mapHuaListPoker {
+			if len(pokers)>=5{
+				for _, p := range pokers {
+					if p==poker{
+						return false
+					}
+				}
 			}
+
 		}
 
-		return false
+		return true
 	}
 
 	//统计:单牌，对子，三条，铁支
 	for score, pokers := range this._mapScoreListPoker {
 		count := len(pokers)
 		if count == 1 {
-			if !isDanPai(pokers[0]) {
+			if isDanPai(pokers[0]) {
 				this._listDanPai = append(this._listDanPai, score)
 			}
 		} else if count == 2 {
