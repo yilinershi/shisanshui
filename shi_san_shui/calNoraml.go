@@ -23,9 +23,8 @@ func (this *ResultNormal) String() string {
 		rightPokerDesc += poker.Desc
 	}
 
-	desc := fmt.Sprintf("结果：{左:【%s】= {%s},中:【%s】= {%s},右:【%s】= {%s},好牌值=【%d】}",
+	return fmt.Sprintf("{左:【%s】= {%s},中:【%s】= {%s},右:【%s】= {%s},好牌值=【%d】}",
 		this.Left.normalType, leftPokerDesc, this.Middle.normalType, middlePokerDesc, this.Right.normalType, rightPokerDesc, this.BestScore)
-	return desc
 }
 
 //CalNormalResults 计算出所有普通牌型
@@ -38,7 +37,7 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 		split(sonTree)
 		for _, node2 := range sonTree.Nodes {
 			//fmt.Println("middle=", node2.String())
-			if node1.CompareExternal(node2)!=Worse {
+			if node1.CompareExternal(node2) != Worse {
 				bestScore := 0
 				switch node1.normalType {
 				case TONG_HUA_SHUN:
@@ -75,11 +74,11 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 					}
 					bestScore = bestScore + 2 + int(DUI_ZI)
 				} else {
-					node3.normalType=WU_LONG
+					node3.normalType = WU_LONG
 					bestScore = bestScore + 1 + int(WU_LONG)
 				}
 
-				if node2.CompareExternal(node3)!=Worse {
+				if node2.CompareExternal(node3) != Worse {
 					result := &ResultNormal{
 						Left:      node1,
 						Middle:    node2,
@@ -96,7 +95,6 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 	return normalInfo
 }
 
-
 //CalBest 计算出最好的普通牌型
 func CalBest(resultList []*ResultNormal) *ResultNormal {
 	if len(resultList) <= 0 {
@@ -112,17 +110,17 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 		if best == nil {
 			best = result
 		} else {
-			//case1:按分值比较
-			if result.BestScore >= best.BestScore {
+
+			if result.BestScore > best.BestScore {
 				best = result
-				//case2:左最优
-				if result.Left.CompareInter(best.Left)==Better {
+			} else if result.BestScore == best.BestScore {
+				if result.Left.CompareInter(best.Left) == Better {
 					best = result
-					//case3:中最优
-					if result.Middle.CompareInter(best.Middle)==Better {
+				} else if result.Left.CompareInter(best.Left) == Same {
+					if result.Middle.CompareInter(best.Middle) == Better {
 						best = result
-						//case4:右最优
-						if result.Right.CompareInter(best.Right)==Better {
+					} else if result.Middle.CompareInter(best.Middle) == Same {
+						if result.Right.CompareInter(best.Right) == Better {
 							best = result
 						}
 					}
@@ -133,7 +131,7 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 	return best
 }
 
-//split 计算普通牌型
+//split 将树节点按牌型拆分
 func split(tree *Tree) {
 	splitTongHuaSun(tree)
 	splitTieZhi(tree)
@@ -340,7 +338,7 @@ func splitSanTiao(tree *Tree) {
 
 	sanTiaoCount := len(tree._listSanTiao)
 	danPaiCount := len(tree._listDanPai)
-	if sanTiaoCount <= 0  || danPaiCount < 2 {
+	if sanTiaoCount <= 0 || danPaiCount < 2 {
 		return
 	}
 
@@ -385,16 +383,16 @@ func splitLiangDui(tree *Tree) {
 		dui2Score = tree._listDui[1]
 		danPaiScore = tree._listDanPai[0]
 	} else if duiCount == 4 {
-		if danPaiCount == 0 {  //四对无单牌时，拆最小的对，对为第2小的对和第3小的对
+		if danPaiCount == 0 { //四对无单牌时，拆最小的对，对为第2小的对和第3小的对
 			dui1Score = tree._listDui[2]
 			dui2Score = tree._listDui[1]
 			danPaiScore = tree._listDui[0]
-		} else {//四对有单牌时，对为第1小的对及第2小的对
+		} else { //四对有单牌时，对为第1小的对及第2小的对
 			dui1Score = tree._listDui[1]
 			dui2Score = tree._listDui[0]
 			danPaiScore = tree._listDanPai[0]
 		}
-	}else if duiCount == 5 {
+	} else if duiCount == 5 {
 		//5对没有单牌时，说明其它3张能和对里凑出最起码是同花或是顺子，因为顺子和同花比较大，完全可以不考虑二对
 		if danPaiCount == 0 {
 			return

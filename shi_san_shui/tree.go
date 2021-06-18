@@ -34,8 +34,8 @@ func NewTree(pokers []*Poker) *Tree {
 //Statistic 将牌作统计
 func (this *Tree) Statistic() {
 	this.statisticsHuaOrScore()
-	this.statistics1234()
 	this.statisticsSunZi()
+	this.statistics1234()
 	this.statisticsSpecialSunZi()
 }
 
@@ -109,7 +109,6 @@ func (this *Tree) statistics1234() {
 					}
 				}
 			}
-
 		}
 
 		return true

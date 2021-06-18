@@ -13,11 +13,10 @@ func CalResult(pokers []*Poker) {
 	}
 	res := CalNormalResults(fatherTree)
 	for i, result := range res {
-		log.Printf("所有牌型=>[%d]=%s", i, result.String())
+		log.Printf("普通牌型[%d] = %s", i, result.String())
 	}
 	best := CalBest(res)
 	if best != nil {
-
-		log.Println("最好牌型=> ", best.String())
+		log.Println("最好牌型 = ", best.String())
 	}
 }
