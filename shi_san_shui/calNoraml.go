@@ -24,7 +24,7 @@ func (this *Tree) splitTongHuaSun() {
 		endScore   int
 	}
 	allTongHuaSun := make([]*tongHuaSunStruct, 0)
-	for _, sunZi := range this._listSunZi {
+	for _, sunZi := range this._listShunZi {
 		for hua, pokers := range this._mapHuaListPoker {
 			if len(pokers) > 5 {
 				temp := make([]*Poker, 0)
@@ -74,8 +74,8 @@ func (this *Tree) splitTieZhi() {
 			n.normalType = TIE_ZHI
 			n.pokers = append(n.pokers, poker1)
 			n.tieZhi = &TieZhi{
-				tieZhiScore: maxTieZhiScore,
-				danPaiScore: poker1.Score,
+				TieZhiScore: maxTieZhiScore,
+				DanScore:    poker1.Score,
 			}
 			for _, poker2 := range this.pokers {
 				if poker1 != poker2 {
@@ -155,19 +155,19 @@ func (this *Tree) splitTongHua() {
 //splitSunZi 顺子
 func (this *Tree) splitSunZi() {
 
-	count := len(this._listSunZi)
+	count := len(this._listShunZi)
 	if count <= 0 {
 		return
 	}
 
-	for _, sunZi := range this._listSunZi {
+	for _, shunZi := range this._listShunZi {
 		n := NewNode()
 		n.normalType = SHUN_ZI
 
 		//顺子中，同样点数的牌可能有多张，要避免这张牌反复加入左节点
 		sameScore := 0
 		for _, poker := range this.pokers {
-			if poker.Score >= sunZi[0] && poker.Score <= sunZi[1] && poker.Score != sameScore {
+			if poker.Score >= shunZi[0] && poker.Score <= shunZi[1] && poker.Score != sameScore {
 				n.pokers = append(n.pokers, poker)
 				sameScorePokerCount := len(this._mapScoreListPoker[poker.Score])
 				if sameScorePokerCount > 1 {
@@ -217,9 +217,9 @@ func (this *Tree) splitSanTiao() {
 	n := NewNode()
 	n.normalType = SAN_TIAO
 	n.sanTiao = &SanTiao{
-		sanTiaoScore: maxSanTiaoScore,
-		bigDanPai:    bigDanPaiScore,
-		smallDanPai:  smallDanPaiScore,
+		SanTiaoScore: maxSanTiaoScore,
+		Dan1Score:    bigDanPaiScore,
+		Dan2Score:    smallDanPaiScore,
 	}
 	for _, poker := range this.pokers {
 		if poker.Score == smallDanPaiScore || poker.Score == bigDanPaiScore || poker.Score == maxSanTiaoScore {
@@ -244,20 +244,30 @@ func (this *Tree) splitLiangDui() {
 	dui2Score := 0
 
 	if duiCount == 2 || duiCount == 3 {
-		if danPaiCount < 1 {
+		//2对或3对没有单牌时，说明其它3张能和对里凑出最起码是同花或是顺子，因为顺子和同花比较大，完全可以不考虑二对
+		if danPaiCount == 0 {
 			return
 		}
 		dui1Score = this._listDui[0]
 		dui2Score = this._listDui[1]
 		danPaiScore = this._listDanPai[0]
 	} else if duiCount == 4 {
+		if danPaiCount == 0 {  //四对无单牌时，拆最小的对，对为第2小的对和第3小的对
+			dui1Score = this._listDui[2]
+			dui2Score = this._listDui[1]
+			danPaiScore = this._listDui[0]
+		} else {//四对有单牌时，对为第1小的对及第2小的对
+			dui1Score = this._listDui[1]
+			dui2Score = this._listDui[0]
+			danPaiScore = this._listDanPai[0]
+		}
+	}else if duiCount == 5 {
+		//5对没有单牌时，说明其它3张能和对里凑出最起码是同花或是顺子，因为顺子和同花比较大，完全可以不考虑二对
 		if danPaiCount == 0 {
-			dui1Score = this._listDui[3]   //最大的对
-			dui2Score = this._listDui[1]   //最大的对
-			danPaiScore = this._listDui[0] //最大的对
+			return
 		} else {
-			dui1Score = this._listDui[0]
-			dui2Score = this._listDui[2]
+			dui1Score = this._listDui[3]
+			dui2Score = this._listDui[0]
 			danPaiScore = this._listDanPai[0]
 		}
 	}
@@ -265,9 +275,9 @@ func (this *Tree) splitLiangDui() {
 	n := NewNode()
 	n.normalType = LIANG_DUI
 	n.liangDui = &LiangDui{
-		dui1Score: dui1Score,
-		dui2Score: dui2Score,
-		dan:       danPaiScore,
+		Dui1Score: dui1Score,
+		Dui2Score: dui2Score,
+		DanScore:  danPaiScore,
 	}
 	isAddDanPai := false
 	for _, poker := range this.pokers {
@@ -304,10 +314,10 @@ func (this *Tree) splitDui() {
 		n := NewNode()
 		n.normalType = DUI_ZI
 		n.dui = &Dui{
-			duiScore: duiScore,
-			dan1:     dan1Score,
-			dan2:     dan2Score,
-			dan3:     dan3Score,
+			DuiScore:  duiScore,
+			Dan1Score: dan1Score,
+			Dan2Score: dan2Score,
+			Dan3Score: dan3Score,
 		}
 		for _, poker := range this.pokers {
 			if poker.Score == duiScore || poker.Score == dan1Score || poker.Score == dan2Score || poker.Score == dan3Score {

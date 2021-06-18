@@ -55,11 +55,11 @@ func CalNormalResults(mainTree *Tree) []*ResultNormal {
 	mainTree.CalNormal()
 	normalInfo := make([]*ResultNormal, 0)
 	for _, node1 := range mainTree.Nodes {
-		fmt.Println("left=", node1.String())
+		//fmt.Println("left=", node1.String())
 		tree2 := NewTree(node1.rest)
 		tree2.CalNormal()
 		for _, node2 := range tree2.Nodes {
-			fmt.Println("middle=", node2.String())
+			//fmt.Println("middle=", node2.String())
 			if node1.CompareExternal(node2)!=Worse {
 				bestScore := 0
 				switch node1.normalType {
@@ -87,13 +87,13 @@ func CalNormalResults(mainTree *Tree) []*ResultNormal {
 				if node3.pokers[0].Score == node3.pokers[1].Score && node3.pokers[1].Score == node3.pokers[2].Score {
 					node3.normalType = SAN_TIAO
 					node3.sanTiao = &SanTiao{
-						sanTiaoScore: node3.pokers[0].Score,
+						SanTiaoScore: node3.pokers[0].Score,
 					}
 					bestScore = bestScore + 3 + int(SAN_TIAO)
 				} else if node3.pokers[0].Score == node3.pokers[1].Score || node3.pokers[1].Score == node3.pokers[2].Score || node3.pokers[0].Score == node3.pokers[2].Score {
 					node3.normalType = DUI_ZI
 					node3.dui = &Dui{
-						duiScore: node3.pokers[0].Score,
+						DuiScore: node3.pokers[0].Score,
 					}
 					bestScore = bestScore + 2 + int(DUI_ZI)
 				} else {
@@ -132,7 +132,7 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 			best = result
 		} else {
 			//case1:按分值比较
-			if result.BestScore > best.BestScore {
+			if result.BestScore >= best.BestScore {
 				best = result
 				//case2:左最优
 				if result.Left.CompareInter(best.Left)==Better {

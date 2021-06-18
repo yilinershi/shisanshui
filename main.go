@@ -43,11 +43,14 @@ func main() {
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
-	fmt.Println(string(byteValue))
 
 	var infos []pokerInfo
 
-	json.Unmarshal(byteValue, &infos)
+	if err := json.Unmarshal(byteValue, &infos); err != nil {
+		fmt.Println("Unmarshal json error, err=", err)
+		return
+	}
+
 	for _, info := range infos {
 
 		info.TestPoker = GenTestPokers(info.Pokers)
@@ -57,7 +60,7 @@ func main() {
 		}
 		if info.IsTest {
 			startTime := time.Now().Nanosecond()
-			fmt.Printf("测试牌型=%+s,开始时间=%d\n", info.Desc, startTime)
+			fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc,info.Pokers, startTime)
 			CalResult(info.TestPoker)
 			endTime := time.Now().Nanosecond()
 			costTime := endTime - startTime

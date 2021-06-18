@@ -6,7 +6,7 @@ type Tree struct {
 	pokers              []*Poker              //用来分节点的牌
 	_mapScoreListPoker  map[int][]*Poker      //按点分组
 	_mapHuaListPoker    map[PokerHua][]*Poker //按花分组
-	_listSunZi          [][2]int              //顺子
+	_listShunZi         [][2]int              //顺子
 	_isHaveSpecialSunZi bool                  //是否有特殊的顺子，如A2345
 	_listTongHua        []PokerHua            //同花
 	_mapTongHuaSun      map[PokerHua][2]int   //同花顺
@@ -68,7 +68,7 @@ func (this *Tree) statisticsSunZi() {
 			}
 			if _tempCount >= 5 {
 				_tempEnd = score
-				this._listSunZi = append(this._listSunZi, [2]int{_tempEnd - 4, _tempEnd})
+				this._listShunZi = append(this._listShunZi, [2]int{_tempEnd - 4, _tempEnd})
 			}
 		} else {
 			_tempStart = 0
@@ -93,7 +93,7 @@ func (this *Tree) statisticsSpecialSunZi() {
 //statistics1234 统计单牌，对子，三条，铁支
 func (this *Tree) statistics1234() {
 	var isDanPai = func(poker *Poker) bool {
-		for _, ints := range this._listSunZi {
+		for _, ints := range this._listShunZi {
 			if poker.Score >= ints[0] && poker.Score <= ints[1] {
 				return true
 			}
