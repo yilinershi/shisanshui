@@ -80,8 +80,8 @@ func (this *Tree) statisticsSunZi() {
 }
 
 func (this *Tree) statisticsSpecialSunZi() {
-	specialSunZiSocre := [5]int{14, 2, 3, 4, 5}
-	for _, score := range specialSunZiSocre {
+	specialShunZiSocre := [5]int{14, 2, 3, 4, 5}
+	for _, score := range specialShunZiSocre {
 		if _, ok := this.mapScoreListPoker[score]; !ok {
 			this.isHaveSpecialSunZi = false
 			return

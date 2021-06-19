@@ -41,6 +41,60 @@ func (this NormalType) String() string {
 	}
 }
 
+type SpecialType int
+
+const (
+	None SpecialType = iota
+	ZhiZunQingLong
+	YiTiaoLong
+	ShiErHuangZu
+	SanTongHuaShun
+	SanFenTianXia
+	QuanDa
+	QuanXiao
+	ChouYiSe
+	SiTaoSanTiao
+	WuDuiSanTiao
+	LiuDuiBan
+	SanSunZi
+	SanTongHua
+)
+
+func (this SpecialType) String() string {
+	switch this {
+	case None:
+		return "不是特殊牌型"
+	case ZhiZunQingLong:
+		return "至尊青龙"
+	case YiTiaoLong:
+		return "一条龙"
+	case ShiErHuangZu:
+		return "十二皇族"
+	case SanTongHuaShun:
+		return "三同花顺"
+	case SanFenTianXia:
+		return "三分天下"
+	case QuanDa:
+		return "全大"
+	case QuanXiao:
+		return "全小"
+	case ChouYiSe:
+		return "凑一色"
+	case SiTaoSanTiao:
+		return "四套三条"
+	case WuDuiSanTiao:
+		return "五对三条"
+	case LiuDuiBan:
+		return "六对半"
+	case SanSunZi:
+		return "三顺子"
+	case SanTongHua:
+		return "三同花"
+	default:
+		return ""
+	}
+}
+
 type PokerPoint int
 
 const (
@@ -160,59 +214,6 @@ func SortPoker(pokers []*Poker) {
 	})
 }
 
-type SpecialType int
-
-const (
-	None SpecialType = iota
-	ZhiZunQingLong
-	YiTiaoLong
-	ShiErHuangZu
-	SanTongHuaShun
-	SanFenTianXia
-	QuanDa
-	QuanXiao
-	ChouYiSe
-	SiTaoSanTiao
-	WuDuiSanTiao
-	LiuDuiBan
-	SanSunZi
-	SanTongHua
-)
-
-func (this SpecialType) String() string {
-	switch this {
-	case None:
-		return "不是特殊牌型"
-	case ZhiZunQingLong:
-		return "至尊青龙"
-	case YiTiaoLong:
-		return "一条龙"
-	case ShiErHuangZu:
-		return "十二皇族"
-	case SanTongHuaShun:
-		return "三同花顺"
-	case SanFenTianXia:
-		return "三分天下"
-	case QuanDa:
-		return "全大"
-	case QuanXiao:
-		return "全小"
-	case ChouYiSe:
-		return "凑一色"
-	case SiTaoSanTiao:
-		return "四套三条"
-	case WuDuiSanTiao:
-		return "五对三条"
-	case LiuDuiBan:
-		return "六对半"
-	case SanSunZi:
-		return "三顺子"
-	case SanTongHua:
-		return "三同花"
-	default:
-		return ""
-	}
-}
 
 type DescHua string
 

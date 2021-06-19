@@ -32,7 +32,7 @@ func (this *Node) String() string {
 	return desc
 }
 
-//CompareInter 相同节点间的比较
+//CompareInter 同一个牌型下，不同节点间的比较
 func (this *Node) CompareInter(other *Node) CompareResult {
 	if this.normalType > other.normalType {
 		return Better
@@ -60,7 +60,7 @@ func (this *Node) CompareInter(other *Node) CompareResult {
 	}
 }
 
-//CompareExternal 不同节点间之前的比较
+//CompareExternal 不同牌型下，同位置节点间之前的比较
 func (this *Node) CompareExternal(other *Node) CompareResult {
 	if this.normalType > other.normalType {
 		return Better

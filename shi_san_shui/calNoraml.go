@@ -67,10 +67,25 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 						SanTiaoScore: node3.pokers[0].Score,
 					}
 					bestScore = bestScore + 3 + int(node3.normalType)
-				} else if node3.pokers[0].Score == node3.pokers[1].Score || node3.pokers[1].Score == node3.pokers[2].Score || node3.pokers[0].Score == node3.pokers[2].Score {
+				} else if node3.pokers[0].Score == node3.pokers[1].Score {
 					node3.normalType = DUI_ZI
 					node3.dui = &Dui{
-						DuiScore: node3.pokers[0].Score,
+						DuiScore:  node3.pokers[1].Score,
+						Dan3Score: node3.pokers[2].Score,
+					}
+					bestScore = bestScore + 2 + int(DUI_ZI)
+				} else if node3.pokers[0].Score == node3.pokers[2].Score {
+					node3.normalType = DUI_ZI
+					node3.dui = &Dui{
+						DuiScore:  node3.pokers[0].Score,
+						Dan3Score: node3.pokers[1].Score,
+					}
+					bestScore = bestScore + 2 + int(DUI_ZI)
+				} else if node3.pokers[1].Score == node3.pokers[2].Score {
+					node3.normalType = DUI_ZI
+					node3.dui = &Dui{
+						DuiScore:  node3.pokers[1].Score,
+						Dan3Score: node3.pokers[0].Score,
 					}
 					bestScore = bestScore + 2 + int(DUI_ZI)
 				} else {
@@ -95,7 +110,7 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 	return normalInfo
 }
 
-//CalBest 计算出最好的普通牌型
+//CalBest 计算出最好的普通牌型,优先保证分值，其次保证上墩，再次保证中墩，最后保证下墩
 func CalBest(resultList []*ResultNormal) *ResultNormal {
 	if len(resultList) <= 0 {
 		return nil
@@ -110,17 +125,16 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 		if best == nil {
 			best = result
 		} else {
-
 			if result.BestScore > best.BestScore {
 				best = result
 			} else if result.BestScore == best.BestScore {
-				if result.Left.CompareInter(best.Left) == Better {
+				if result.Right.CompareExternal(best.Right) == Better {
 					best = result
-				} else if result.Left.CompareInter(best.Left) == Same {
-					if result.Middle.CompareInter(best.Middle) == Better {
+				} else if result.Right.CompareExternal(best.Right) == Same {
+					if result.Left.CompareExternal(best.Left) == Better {
 						best = result
-					} else if result.Middle.CompareInter(best.Middle) == Same {
-						if result.Right.CompareInter(best.Right) == Better {
+					} else if result.Left.CompareExternal(best.Left) == Same {
+						if result.Middle.CompareExternal(best.Middle) == Better {
 							best = result
 						}
 					}
@@ -155,20 +169,20 @@ func splitTongHuaSun(tree *Tree) {
 		endScore   int
 	}
 	allTongHuaSun := make([]*tongHuaSunStruct, 0)
-	for _, sunZi := range tree.listShunZi {
+	for _, shunZi := range tree.listShunZi {
 		for hua, pokers := range tree.mapHuaListPoker {
-			if len(pokers) > 5 {
+			if len(pokers) >= 5 {
 				temp := make([]*Poker, 0)
 				for _, poker := range pokers {
-					if poker.Hua == hua && poker.Score <= sunZi[1] && poker.Score >= sunZi[0] {
+					if poker.Hua == hua && poker.Score <= shunZi[1] && poker.Score >= shunZi[0] {
 						temp = append(temp, poker)
 					}
 				}
 				if len(temp) == 5 {
 					ths := &tongHuaSunStruct{
 						hua:        hua,
-						startScore: sunZi[0],
-						endScore:   sunZi[1],
+						startScore: shunZi[0],
+						endScore:   shunZi[1],
 					}
 					allTongHuaSun = append(allTongHuaSun, ths)
 				}
@@ -223,7 +237,7 @@ func splitTieZhi(tree *Tree) {
 
 }
 
-//splitHuLu 拆分出葫芦
+//splitHuLu 拆分出葫芦,葫芦是最大的三条和任意对组合，有可能最小的对能拆成同花或顺子
 func splitHuLu(tree *Tree) {
 	countDui := len(tree.listDui)
 	countSanTiao := len(tree.listSanTiao)
@@ -258,10 +272,10 @@ func splitTongHua(tree *Tree) {
 		count := len(pokers)
 		if count >= 5 {
 
-			for i1 := 0; i1 < count; i1++ {
-				for i2 := i1 + 1; i2 < count; i2++ {
-					for i3 := i2 + 1; i3 < count; i3++ {
-						for i4 := i3 + 1; i4 < count; i4++ {
+			for i1 := 0; i1 < count-4; i1++ {
+				for i2 := i1 + 1; i2 < count-3; i2++ {
+					for i3 := i2 + 1; i3 < count-2; i3++ {
+						for i4 := i3 + 1; i4 < count-1; i4++ {
 							for i5 := i4 + 1; i5 < count; i5++ {
 								n := NewNode()
 								n.normalType = TONG_HUA
@@ -280,7 +294,6 @@ func splitTongHua(tree *Tree) {
 			}
 		}
 	}
-
 }
 
 //splitSunZi 顺子
@@ -370,61 +383,77 @@ func splitLiangDui(tree *Tree) {
 	if duiCount < 2 {
 		return
 	}
-	danPaiScore := 0
-	dui1Score := 0
-	dui2Score := 0
+
+	var listLiangDui = make([]*LiangDui, 0)
 
 	if duiCount == 2 || duiCount == 3 {
 		//2对或3对没有单牌时，说明其它3张能和对里凑出最起码是同花或是顺子，因为顺子和同花比较大，完全可以不考虑二对
 		if danPaiCount == 0 {
 			return
 		}
-		dui1Score = tree.listDui[0]
-		dui2Score = tree.listDui[1]
-		danPaiScore = tree.listDanPai[0]
+		liangDui := &LiangDui{
+			Dui1Score: tree.listDui[0],
+			Dui2Score: tree.listDui[1],
+			DanScore:  tree.listDanPai[0],
+		}
+		listLiangDui = append(listLiangDui, liangDui)
 	} else if duiCount == 4 {
 		if danPaiCount == 0 { //四对无单牌时，拆最小的对，对为第2小的对和第3小的对
-			dui1Score = tree.listDui[2]
-			dui2Score = tree.listDui[1]
-			danPaiScore = tree.listDui[0]
-		} else { //四对有单牌时，对为第1小的对及第2小的对
-			dui1Score = tree.listDui[1]
-			dui2Score = tree.listDui[0]
-			danPaiScore = tree.listDanPai[0]
+			liangDui := &LiangDui{
+				Dui1Score: tree.listDui[2],
+				Dui2Score: tree.listDui[1],
+				DanScore:  tree.listDui[0],
+			}
+			listLiangDui = append(listLiangDui, liangDui)
+		} else { //四对有单牌时，对为第1小的对及第2小的对 或最小及最大的对
+			liangDui1 := &LiangDui{
+				Dui1Score: tree.listDui[1],
+				Dui2Score: tree.listDui[0],
+				DanScore:  tree.listDanPai[0],
+			}
+			liangDui2 := &LiangDui{
+				Dui1Score: tree.listDui[3],
+				Dui2Score: tree.listDui[0],
+				DanScore:  tree.listDanPai[0],
+			}
+			listLiangDui = append(listLiangDui, liangDui1)
+			listLiangDui = append(listLiangDui, liangDui2)
 		}
 	} else if duiCount == 5 {
 		//5对没有单牌时，说明其它3张能和对里凑出最起码是同花或是顺子，因为顺子和同花比较大，完全可以不考虑二对
 		if danPaiCount == 0 {
 			return
 		} else {
-			dui1Score = tree.listDui[3]
-			dui2Score = tree.listDui[0]
-			danPaiScore = tree.listDanPai[0]
+			liangDui1 := &LiangDui{
+				Dui1Score: tree.listDui[3],
+				Dui2Score: tree.listDui[0],
+				DanScore:  tree.listDanPai[0],
+			}
+			listLiangDui = append(listLiangDui, liangDui1)
 		}
 	}
 
-	n := NewNode()
-	n.normalType = LIANG_DUI
-	n.liangDui = &LiangDui{
-		Dui1Score: dui1Score,
-		Dui2Score: dui2Score,
-		DanScore:  danPaiScore,
-	}
-	isAddDanPai := false
-	for _, poker := range tree.pokers {
-		if poker.Score == dui2Score || poker.Score == dui1Score {
-			n.pokers = append(n.pokers, poker)
-		} else if poker.Score == danPaiScore && isAddDanPai == false {
-			n.pokers = append(n.pokers, poker)
-			isAddDanPai = true
-		} else {
-			n.rest = append(n.rest, poker)
+	for _, liangDui := range listLiangDui {
+
+		n := NewNode()
+		n.normalType = LIANG_DUI
+		n.liangDui = liangDui
+		isAddDanPai := false
+		for _, poker := range tree.pokers {
+			if poker.Score == liangDui.Dui1Score || poker.Score == liangDui.Dui2Score {
+				n.pokers = append(n.pokers, poker)
+			} else if poker.Score == liangDui.DanScore && isAddDanPai == false {
+				n.pokers = append(n.pokers, poker)
+				isAddDanPai = true
+			} else {
+				n.rest = append(n.rest, poker)
+			}
 		}
+		tree.Nodes = append(tree.Nodes, n)
 	}
-	tree.Nodes = append(tree.Nodes, n)
 }
 
-//splitDui 一对+3*单张=两对，这个单张不可能是顺子或是同花中的牌，因为顺子和同花都比一对大，这样一对就没必要出现
+//splitDui 一对+3张单=对子，这个单张不可能是顺子或是同花中的牌，因为顺子和同花都比一对大，这样对子就没必要出现
 func splitDui(tree *Tree) {
 	duiCount := len(tree.listDui)
 	danPaiCount := len(tree.listDanPai)
