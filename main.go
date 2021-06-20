@@ -57,13 +57,13 @@ func main() {
 			log.Printf("json配牌出错，类型：%s\n", info.Desc)
 			return
 		}
-		//if info.IsTest {
+		if info.IsTest {
 			startTime := time.Now().Nanosecond()
 			fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc,info.Pokers, startTime)
 			CalResult(info.TestPoker)
 			endTime := time.Now().Nanosecond()
 			costTime := endTime - startTime
 			fmt.Printf("结束时间=%d,AI算法耗时【%d】微秒\n\n", endTime, costTime/1000)
-		//}
+		}
 	}
 }

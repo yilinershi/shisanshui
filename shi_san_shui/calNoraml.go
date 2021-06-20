@@ -41,22 +41,22 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 				bestScore := 0
 				switch node1.normalType {
 				case TONG_HUA_SHUN:
-					bestScore = bestScore + 5 + int(TONG_HUA_SHUN)
+					bestScore += 5 + int(node1.normalType)
 				case TIE_ZHI:
-					bestScore = bestScore + 4 + int(TIE_ZHI)
+					bestScore += 4 + int(node1.normalType)
 				default:
-					bestScore = 1 + int(node1.normalType)
+					bestScore += 1 + int(node1.normalType)
 				}
 
 				switch node2.normalType {
 				case TONG_HUA_SHUN:
-					bestScore = bestScore + 10 + int(TONG_HUA_SHUN)
+					bestScore += 10 + int(node2.normalType)
 				case TIE_ZHI:
-					bestScore = bestScore + 8 + int(TIE_ZHI)
+					bestScore += 8 + int(node2.normalType)
 				case HU_LU:
-					bestScore = bestScore + 2 + int(HU_LU)
+					bestScore += 2 + int(node2.normalType)
 				default:
-					bestScore = 1 + int(node2.normalType)
+					bestScore += 1 + int(node2.normalType)
 				}
 
 				node3 := NewNode()
@@ -66,31 +66,31 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 					node3.sanTiao = &SanTiao{
 						SanTiaoScore: node3.pokers[0].Score,
 					}
-					bestScore = bestScore + 3 + int(node3.normalType)
+					bestScore += 3 + int(node3.normalType)
 				} else if node3.pokers[0].Score == node3.pokers[1].Score {
 					node3.normalType = DUI_ZI
 					node3.dui = &Dui{
 						DuiScore:  node3.pokers[1].Score,
 						Dan3Score: node3.pokers[2].Score,
 					}
-					bestScore = bestScore + 2 + int(DUI_ZI)
+					bestScore += 2 + int(DUI_ZI)
 				} else if node3.pokers[0].Score == node3.pokers[2].Score {
 					node3.normalType = DUI_ZI
 					node3.dui = &Dui{
 						DuiScore:  node3.pokers[0].Score,
 						Dan3Score: node3.pokers[1].Score,
 					}
-					bestScore = bestScore + 2 + int(DUI_ZI)
+					bestScore += 2 + int(DUI_ZI)
 				} else if node3.pokers[1].Score == node3.pokers[2].Score {
 					node3.normalType = DUI_ZI
 					node3.dui = &Dui{
 						DuiScore:  node3.pokers[1].Score,
 						Dan3Score: node3.pokers[0].Score,
 					}
-					bestScore = bestScore + 2 + int(DUI_ZI)
+					bestScore += 2 + int(DUI_ZI)
 				} else {
 					node3.normalType = WU_LONG
-					bestScore = bestScore + 1 + int(WU_LONG)
+					bestScore += 1 + int(WU_LONG)
 				}
 
 				if node2.CompareExternal(node3) != Worse {
