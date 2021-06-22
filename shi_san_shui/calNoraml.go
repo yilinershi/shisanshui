@@ -59,39 +59,17 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 					bestScore += 1 + int(node2.normalType)
 				}
 
-				node3 := NewNode()
-				node3.pokers = node2.rest
-				if node3.pokers[0].Score == node3.pokers[1].Score && node3.pokers[1].Score == node3.pokers[2].Score {
-					node3.normalType = SAN_TIAO
-					node3.sanTiao = &SanTiao{
-						SanTiaoScore: node3.pokers[0].Score,
-					}
+
+				node3:=	CalCardType(node2.rest)
+				switch node3.normalType {
+				case SAN_TIAO:
 					bestScore += 3 + int(node3.normalType)
-				} else if node3.pokers[0].Score == node3.pokers[1].Score {
-					node3.normalType = DUI_ZI
-					node3.dui = &Dui{
-						DuiScore:  node3.pokers[1].Score,
-						Dan3Score: node3.pokers[2].Score,
-					}
-					bestScore += 2 + int(DUI_ZI)
-				} else if node3.pokers[0].Score == node3.pokers[2].Score {
-					node3.normalType = DUI_ZI
-					node3.dui = &Dui{
-						DuiScore:  node3.pokers[0].Score,
-						Dan3Score: node3.pokers[1].Score,
-					}
-					bestScore += 2 + int(DUI_ZI)
-				} else if node3.pokers[1].Score == node3.pokers[2].Score {
-					node3.normalType = DUI_ZI
-					node3.dui = &Dui{
-						DuiScore:  node3.pokers[1].Score,
-						Dan3Score: node3.pokers[0].Score,
-					}
-					bestScore += 2 + int(DUI_ZI)
-				} else {
-					node3.normalType = WU_LONG
-					bestScore += 1 + int(WU_LONG)
+				case DUI_ZI:
+					bestScore += 2+ int(node3.normalType)
+				default:
+					bestScore += 1 + int(node3.normalType)
 				}
+
 
 				if node2.CompareExternal(node3) != Worse {
 					result := &ResultNormal{
@@ -144,6 +122,7 @@ func CalBest(resultList []*ResultNormal) *ResultNormal {
 	}
 	return best
 }
+
 
 //split 将树节点按牌型拆分
 func split(tree *Tree) {
