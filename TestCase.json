@@ -90,6 +90,16 @@
     "IsTest": false
   },
   {
+    "Pokers": "♦A,♦2,♦3,♦4,♦5,♥4,♠5,♥6,♥7,♥8,♥9,♥T,♦K",
+    "Desc": "普通牌型【两同花顺1】",
+    "IsTest": false
+  },
+  {
+    "Pokers": "♦A,♦2,♦3,♦4,♦5,♦6,♦7,♥9,♥T,♥J,♥Q,♥K,♣K",
+    "Desc": "普通牌型【两同花顺2】",
+    "IsTest": true
+  },
+  {
     "Pokers": "♦2,♣2,♥2,♠3,♦3,♣3,♦7,♣7,♥J,♠T,♥K,♠A,♦A",
     "Desc": "普通牌型【葫芦+葫芦+3单】",
     "IsTest": false
@@ -147,26 +157,26 @@
   {
     "Pokers": "♦4,♦6,♦7,♦8,♦9",
     "Desc": "同花判定",
-    "IsTest": true
+    "IsTest": false
   },
   {
     "Pokers": "♦5,♦6,♦7,♦8,♦9",
     "Desc": "同花顺判定",
-    "IsTest": true
+    "IsTest": false
   },
   {
     "Pokers": "♦5,♣7,♦7,♣8,♦8",
     "Desc": "同花顺判定",
-    "IsTest": true
+    "IsTest": false
   },
   {
     "Pokers": "♦5,♣7,♦7",
     "Desc": "同花顺判定",
-    "IsTest": true
+    "IsTest": false
   },
   {
     "Pokers": "♠7,♣7,♦7",
     "Desc": "同花顺判定",
-    "IsTest": true
+    "IsTest": false
   }
 ]

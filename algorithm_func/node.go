@@ -1,4 +1,4 @@
-package shi_san_shui
+package algorithm_func
 
 import (
 	"fmt"
@@ -41,6 +41,7 @@ func (this *Node) CompareExternal(other *Node) CompareResult {
 	if this.normalType < other.normalType {
 		return Worse
 	}
+	ComparePokerScore(this.pokers, other.pokers)
 	switch this.normalType {
 	case WU_LONG, TONG_HUA_SHUN, TONG_HUA, SHUN_ZI:
 		return ComparePokerScore(this.pokers, other.pokers)

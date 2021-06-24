@@ -1,30 +1,33 @@
-package shi_san_shui
+package algorithm_func
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type ResultNormal struct {
 	BestScore int //好牌值
-	Left      *Node
+	Head      *Node
 	Middle    *Node
-	Right     *Node
+	Tail      *Node
 }
 
 func (this *ResultNormal) String() string {
-	leftPokerDesc := ""
-	for _, poker := range this.Left.pokers {
-		leftPokerDesc += poker.Desc
+	tailPokerDesc := ""
+	for _, poker := range this.Tail.pokers {
+		tailPokerDesc += poker.Desc
 	}
 	middlePokerDesc := ""
 	for _, poker := range this.Middle.pokers {
 		middlePokerDesc += poker.Desc
 	}
-	rightPokerDesc := ""
-	for _, poker := range this.Right.pokers {
-		rightPokerDesc += poker.Desc
+	headPokerDesc := ""
+	for _, poker := range this.Head.pokers {
+		headPokerDesc += poker.Desc
 	}
 
-	return fmt.Sprintf("{左:【%s】= {%s},中:【%s】= {%s},右:【%s】= {%s},好牌值=【%d】}",
-		this.Left.normalType, leftPokerDesc, this.Middle.normalType, middlePokerDesc, this.Right.normalType, rightPokerDesc, this.BestScore)
+	return fmt.Sprintf("{上墩:【%s】= {%s},中墩:【%s】= {%s},下墩:【%s】= {%s},好牌值=【%d】}",
+		this.Head.normalType, headPokerDesc, this.Middle.normalType, middlePokerDesc, this.Tail.normalType, tailPokerDesc, this.BestScore)
 }
 
 //CalNormalResults 计算出所有普通牌型
@@ -59,23 +62,21 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 					bestScore += 1 + int(node2.normalType)
 				}
 
-
-				node3:=	CalCardType(node2.rest)
+				node3 := CalCardType(node2.rest)
 				switch node3.normalType {
 				case SAN_TIAO:
 					bestScore += 3 + int(node3.normalType)
 				case DUI_ZI:
-					bestScore += 2+ int(node3.normalType)
+					bestScore += 2 + int(node3.normalType)
 				default:
 					bestScore += 1 + int(node3.normalType)
 				}
 
-
 				if node2.CompareExternal(node3) != Worse {
 					result := &ResultNormal{
-						Left:      node1,
+						Tail:      node1,
 						Middle:    node2,
-						Right:     node3,
+						Head:      node3,
 						BestScore: bestScore,
 					}
 
@@ -88,39 +89,46 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 	return normalInfo
 }
 
-//CalBest 计算出最好的普通牌型,优先保证分值，其次保证上墩，再次保证中墩，最后保证下墩
-func CalBest(resultList []*ResultNormal) *ResultNormal {
-	if len(resultList) <= 0 {
-		return nil
-	}
+//SortFilterResult 计算出最好的普通牌型,优先保证分值，其次保证上墩，再次保证中墩，最后保证下墩
+func SortFilterResult(resultList []*ResultNormal) []*ResultNormal {
+	sort.Slice(resultList, func(i, j int) bool {
+		if resultList[i].BestScore > resultList[j].BestScore {
+			return true
+		} else if resultList[i].BestScore < resultList[j].BestScore {
+			return false
+		}
+		if resultList[i].Head.CompareExternal(resultList[j].Head) == Better {
+			return true
+		} else if resultList[i].Head.CompareExternal(resultList[j].Head) == Worse {
+			return false
+		}
+		if resultList[i].Tail.CompareExternal(resultList[j].Tail) == Better {
+			return true
+		} else if resultList[i].Tail.CompareExternal(resultList[j].Tail) == Worse {
+			return false
+		}
+		if resultList[i].Middle.CompareExternal(resultList[j].Middle) == Better {
+			return true
+		} else if resultList[i].Middle.CompareExternal(resultList[j].Middle) == Worse {
+			return false
+		}
 
-	if len(resultList) == 1 {
-		return resultList[0]
-	}
+		return false
+	})
 
-	var best *ResultNormal = nil
+	var filterRes = make([]*ResultNormal, 0)
+	var last *ResultNormal = nil
 	for _, result := range resultList {
-		if best == nil {
-			best = result
-		} else {
-			if result.BestScore > best.BestScore {
-				best = result
-			} else if result.BestScore == best.BestScore {
-				if result.Right.CompareExternal(best.Right) == Better {
-					best = result
-				} else if result.Right.CompareExternal(best.Right) == Same {
-					if result.Left.CompareExternal(best.Left) == Better {
-						best = result
-					} else if result.Left.CompareExternal(best.Left) == Same {
-						if result.Middle.CompareExternal(best.Middle) == Better {
-							best = result
-						}
-					}
-				}
-			}
+		if last == nil {
+			last = result
+			filterRes = append(filterRes, last)
+		} else if result.Head.normalType != last.Head.normalType || result.Middle.normalType != last.Middle.normalType || result.Tail.normalType != last.Tail.normalType {
+			last = result
+			filterRes = append(filterRes, result)
 		}
 	}
-	return best
+
+	return filterRes
 }
 
 
@@ -142,44 +150,40 @@ func split(tree *Tree) {
 //splitTongHuaSun 拆分出同花顺
 func splitTongHuaSun(tree *Tree) {
 
-	type tongHuaSunStruct struct {
-		hua        PokerHua
-		startScore int
-		endScore   int
-	}
-	allTongHuaSun := make([]*tongHuaSunStruct, 0)
-	for _, shunZi := range tree.listShunZi {
-		for hua, pokers := range tree.mapHuaListPoker {
-			if len(pokers) >= 5 {
-				temp := make([]*Poker, 0)
-				for _, poker := range pokers {
-					if poker.Hua == hua && poker.Score <= shunZi[1] && poker.Score >= shunZi[0] {
-						temp = append(temp, poker)
-					}
-				}
-				if len(temp) == 5 {
-					ths := &tongHuaSunStruct{
-						hua:        hua,
-						startScore: shunZi[0],
-						endScore:   shunZi[1],
-					}
-					allTongHuaSun = append(allTongHuaSun, ths)
-				}
-			}
+	for _, pokers := range tree.mapHuaListPoker {
+		count := len(pokers)
+		if count < 5 {
+			continue
 		}
-	}
 
-	for _, tongHuaSun := range allTongHuaSun {
-		n := NewNode()
-		n.normalType = TONG_HUA_SHUN
-		for _, poker := range tree.pokers {
-			if poker.Hua == tongHuaSun.hua && poker.Score >= tongHuaSun.startScore && poker.Score <= tongHuaSun.endScore {
-				n.pokers = append(n.pokers, poker)
-			} else {
-				n.rest = append(n.rest, poker)
+		for i1 := 0; i1 < count-4; i1++ {
+			for i2 := i1 + 1; i2 < count-3; i2++ {
+				if pokers[i1].Score+1 == pokers[i2].Score {
+					for i3 := i2 + 1; i3 < count-2; i3++ {
+						if pokers[i2].Score+1 == pokers[i3].Score {
+							for i4 := i3 + 1; i4 < count-1; i4++ {
+								if pokers[i3].Score+1 == pokers[i4].Score {
+									for i5 := i4 + 1; i5 < count; i5++ {
+										if pokers[i4].Score+1 == pokers[i5].Score || (pokers[i4].Point == Poker5 && pokers[i5].Point == PokerA) {
+											n := NewNode()
+											n.normalType = TONG_HUA_SHUN
+											for _, poker := range tree.pokers {
+												if poker == pokers[i1] || poker == pokers[i2] || poker == pokers[i3] || poker == pokers[i4] || poker == pokers[i5] {
+													n.pokers = append(n.pokers, poker)
+												} else {
+													n.rest = append(n.rest, poker)
+												}
+											}
+											tree.Nodes = append(tree.Nodes, n)
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-		tree.Nodes = append(tree.Nodes, n)
 	}
 }
 
@@ -246,27 +250,27 @@ func splitHuLu(tree *Tree) {
 
 //splitTongHua 拆分出同花
 func splitTongHua(tree *Tree) {
-
 	for _, pokers := range tree.mapHuaListPoker {
 		count := len(pokers)
-		if count >= 5 {
+		if count < 5 {
+			continue
+		}
 
-			for i1 := 0; i1 < count-4; i1++ {
-				for i2 := i1 + 1; i2 < count-3; i2++ {
-					for i3 := i2 + 1; i3 < count-2; i3++ {
-						for i4 := i3 + 1; i4 < count-1; i4++ {
-							for i5 := i4 + 1; i5 < count; i5++ {
-								n := NewNode()
-								n.normalType = TONG_HUA
-								for _, poker := range tree.pokers {
-									if poker == pokers[i1] || poker == pokers[i2] || poker == pokers[i3] || poker == pokers[i4] || poker == pokers[i5] {
-										n.pokers = append(n.pokers, poker)
-									} else {
-										n.rest = append(n.rest, poker)
-									}
+		for i1 := 0; i1 < count-4; i1++ {
+			for i2 := i1 + 1; i2 < count-3; i2++ {
+				for i3 := i2 + 1; i3 < count-2; i3++ {
+					for i4 := i3 + 1; i4 < count-1; i4++ {
+						for i5 := i4 + 1; i5 < count; i5++ {
+							n := NewNode()
+							n.normalType = TONG_HUA
+							for _, poker := range tree.pokers {
+								if poker == pokers[i1] || poker == pokers[i2] || poker == pokers[i3] || poker == pokers[i4] || poker == pokers[i5] {
+									n.pokers = append(n.pokers, poker)
+								} else {
+									n.rest = append(n.rest, poker)
 								}
-								tree.Nodes = append(tree.Nodes, n)
 							}
+							tree.Nodes = append(tree.Nodes, n)
 						}
 					}
 				}
@@ -283,47 +287,40 @@ func splitSunZi(tree *Tree) {
 		return
 	}
 
-	for _, shunZi := range tree.listShunZi {
-		n := NewNode()
-		n.normalType = SHUN_ZI
+	treePokerCount := len(tree.pokers)
+	for i1 := 0; i1 < treePokerCount-4; i1++ {
+		for i2 := i1 + 1; i2 < treePokerCount-3; i2++ {
+			if tree.pokers[i1].Score+1 == tree.pokers[i2].Score {
+				for i3 := i2 + 1; i3 < treePokerCount-2; i3++ {
+					if tree.pokers[i2].Score+1 == tree.pokers[i3].Score {
+						for i4 := i3 + 1; i4 < treePokerCount-1; i4++ {
+							if tree.pokers[i3].Score+1 == tree.pokers[i4].Score {
+								for i5 := i4 + 1; i5 < treePokerCount; i5++ {
+									if (tree.pokers[i4].Point == Poker5 && tree.pokers[i5].Point == PokerA) || tree.pokers[i4].Score+1 == tree.pokers[i5].Score {
+										if tree.pokers[i1].Hua != tree.pokers[i2].Hua && tree.pokers[i2].Hua != tree.pokers[i3].Hua && tree.pokers[i3].Hua != tree.pokers[i4].Hua && tree.pokers[i4].Hua != tree.pokers[i5].Hua {
+											n := NewNode()
+											n.normalType = SHUN_ZI
+											n.pokers = append(n.pokers, tree.pokers[i1], tree.pokers[i2], tree.pokers[i3], tree.pokers[i4], tree.pokers[i5])
 
-		//顺子中，同样点数的牌可能有多张，要避免这张牌反复加入左节点
-		sameScore := 0
-		for _, poker := range tree.pokers {
-			if poker.Score >= shunZi[0] && poker.Score <= shunZi[1] && poker.Score != sameScore {
-				n.pokers = append(n.pokers, poker)
-				sameScorePokerCount := len(tree.mapScoreListPoker[poker.Score])
-				if sameScorePokerCount > 1 {
-					sameScore = poker.Score
+											for _, poker := range tree.pokers {
+												if poker == tree.pokers[i1] || poker == tree.pokers[i2] || poker == tree.pokers[i3] || poker == tree.pokers[i4] || poker == tree.pokers[i5] {
+												} else {
+													n.rest = append(n.rest, poker)
+												}
+											}
+											tree.Nodes = append(tree.Nodes, n)
+										}
+									}
+								}
+							}
+						}
+					}
 				}
-			} else {
-				n.rest = append(n.rest, poker)
 			}
 		}
-		tree.Nodes = append(tree.Nodes, n)
-
-	}
-
-	if tree.isHaveSpecialSunZi {
-		n := NewNode()
-		n.normalType = SHUN_ZI
-
-		//顺子中，同样点数的牌可能有多张，要避免这张牌反复加入左节点
-		sameScore := 0
-		for _, poker := range tree.pokers {
-			if (poker.Point == PokerA || poker.Point == Poker2 || poker.Point == Poker3 || poker.Point == Poker4 || poker.Point == Poker5) && poker.Score != sameScore {
-				n.pokers = append(n.pokers, poker)
-				sameScorePokerCount := len(tree.mapScoreListPoker[poker.Score])
-				if sameScorePokerCount > 1 {
-					sameScore = poker.Score
-				}
-			} else {
-				n.rest = append(n.rest, poker)
-			}
-		}
-		tree.Nodes = append(tree.Nodes, n)
 	}
 }
+
 
 //splitSanTiao 拆分出三条
 func splitSanTiao(tree *Tree) {

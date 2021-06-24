@@ -1,4 +1,4 @@
-package shi_san_shui
+package tradition_func
 
 type Poker struct {
 	Point PokerPoint

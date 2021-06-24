@@ -1,4 +1,4 @@
-package shi_san_shui
+package algorithm_func
 
 import (
 	"log"
@@ -12,12 +12,9 @@ func CalResult(pokers []*Poker) {
 		return
 	}
 	res := CalNormalResults(fatherTree)
-	for i, result := range res {
-		log.Printf("普通牌型[%d] = %s", i, result.String())
-	}
-	best := CalBest(res)
-	if best != nil {
-		log.Println("最好牌型 = ", best.String())
+	filterRes := SortFilterResult(res)
+	for i, result := range filterRes {
+		log.Printf("智能排序：牌型[%d] = %s", i, result.String())
 	}
 }
 
@@ -29,7 +26,7 @@ func CalCardType(pokers []*Poker) *Node {
 		n = tree.Nodes[0]
 	}
 	if len(pokers) == 3 {
-		n.pokers=pokers
+		n.pokers = pokers
 		if pokers[0].Score == pokers[1].Score && pokers[1].Score == pokers[2].Score {
 			n.normalType = SAN_TIAO
 			n.sanTiao = &SanTiao{

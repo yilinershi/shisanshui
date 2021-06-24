@@ -1,4 +1,4 @@
-package shi_san_shui
+package algorithm_func
 
 import "sort"
 
