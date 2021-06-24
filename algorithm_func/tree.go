@@ -6,9 +6,7 @@ type Tree struct {
 	pokers             []*Poker              //用来分节点的牌
 	mapScoreListPoker  map[int][]*Poker      //按点分组
 	mapHuaListPoker    map[PokerHua][]*Poker //按花分组
-	isHaveSpecialSunZi bool                  //是否有特殊的顺子，如A2345
 	listShunZi         [][2]int              //顺子
-	listTongHua        []PokerHua            //同花
 	listTieZhi         []int                 //铁支 int为铁支的分值
 	listSanTiao        []int                 //三条 int为三条的分值
 	listDui            []int                 //对子 int为对子的分值
@@ -23,7 +21,7 @@ func NewTree(pokers []*Poker) *Tree {
 		mapHuaListPoker:    make(map[PokerHua][]*Poker, 0),
 		mapScoreListPoker:  make(map[int][]*Poker, 0),
 		Nodes:              make([]*Node, 0),
-		isHaveSpecialSunZi: false,
+
 	}
 	tree.Statistic()
 	return tree
@@ -34,7 +32,6 @@ func (this *Tree) Statistic() {
 	this.statisticsHuaOrScore()
 	this.statisticsSunZi()
 	this.statistics1234()
-	this.statisticsSpecialSunZi()
 }
 
 //statisticsHuaOrScore 分组:按花分组或按分值分组
@@ -73,18 +70,24 @@ func (this *Tree) statisticsSunZi() {
 			_tempCount = 1
 		}
 	}
+
+	isHaveSpecialSunZi:= func() bool {
+		specialShunZiSocre := [5]int{14, 2, 3, 4, 5}
+		for _, score := range specialShunZiSocre {
+			if _, ok := this.mapScoreListPoker[score]; !ok {
+
+				return false
+			}
+		}
+		return true
+	}
+
+	if isHaveSpecialSunZi(){
+		this.listShunZi = append(this.listShunZi, [2]int{2, 14})
+	}
 }
 
-func (this *Tree) statisticsSpecialSunZi() {
-	specialShunZiSocre := [5]int{14, 2, 3, 4, 5}
-	for _, score := range specialShunZiSocre {
-		if _, ok := this.mapScoreListPoker[score]; !ok {
-			this.isHaveSpecialSunZi = false
-			return
-		}
-	}
-	this.isHaveSpecialSunZi = true
-}
+
 
 //statistics1234 统计单牌，对子，三条，铁支
 func (this *Tree) statistics1234() {

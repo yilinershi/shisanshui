@@ -44,12 +44,7 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 				bestScore := 0
 				node3 := CalCardType(node2.rest)
 				if node2.CompareExternal(node3) != Worse {
-					result := &ResultNormal{
-						Tail:      node1,
-						Middle:    node2,
-						Head:      node3,
-						BestScore: bestScore,
-					}
+
 					switch node1.normalType {
 					case TONG_HUA_SHUN:
 						bestScore += 5 + int(node1.normalType)
@@ -75,6 +70,13 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 						bestScore += 2 + int(node3.normalType)
 					default:
 						bestScore += 1 + int(node3.normalType)
+					}
+
+					result := &ResultNormal{
+						Tail:      node1,
+						Middle:    node2,
+						Head:      node3,
+						BestScore: bestScore,
 					}
 					normalInfo = append(normalInfo, result)
 				}
@@ -280,32 +282,28 @@ func splitSunZi(tree *Tree) {
 		return
 	}
 
-	treePokerCount := len(tree.pokers)
-	for i1 := 0; i1 < treePokerCount-4; i1++ {
-		for i2 := i1 + 1; i2 < treePokerCount-3; i2++ {
-			if tree.pokers[i1].Score+1 == tree.pokers[i2].Score {
-				for i3 := i2 + 1; i3 < treePokerCount-2; i3++ {
-					if tree.pokers[i2].Score+1 == tree.pokers[i3].Score {
-						for i4 := i3 + 1; i4 < treePokerCount-1; i4++ {
-							if tree.pokers[i3].Score+1 == tree.pokers[i4].Score {
-								for i5 := i4 + 1; i5 < treePokerCount; i5++ {
-									if (tree.pokers[i4].Point == Poker5 && tree.pokers[i5].Point == PokerA) || tree.pokers[i4].Score+1 == tree.pokers[i5].Score {
-										if tree.pokers[i1].Hua != tree.pokers[i2].Hua && tree.pokers[i2].Hua != tree.pokers[i3].Hua && tree.pokers[i3].Hua != tree.pokers[i4].Hua && tree.pokers[i4].Hua != tree.pokers[i5].Hua {
-											n := NewNode()
-											n.normalType = SHUN_ZI
-											n.pokers = append(n.pokers, tree.pokers[i1], tree.pokers[i2], tree.pokers[i3], tree.pokers[i4], tree.pokers[i5])
+	for _, shunZi := range tree.listShunZi {
+		poker1s := tree.mapScoreListPoker[shunZi[0]]
+		poker2s := tree.mapScoreListPoker[shunZi[0]+1]
+		poker3s := tree.mapScoreListPoker[shunZi[0]+2]
+		poker4s := tree.mapScoreListPoker[shunZi[0]+3]
+		poker5s := tree.mapScoreListPoker[shunZi[1]]
 
-											for _, poker := range tree.pokers {
-												if poker == tree.pokers[i1] || poker == tree.pokers[i2] || poker == tree.pokers[i3] || poker == tree.pokers[i4] || poker == tree.pokers[i5] {
-												} else {
-													n.rest = append(n.rest, poker)
-												}
-											}
-											tree.Nodes = append(tree.Nodes, n)
-										}
-									}
+		for i1 := 0; i1 < len(poker1s); i1++ {
+			for i2 := 0; i2 < len(poker2s); i2++ {
+				for i3 := 0; i3 < len(poker3s); i3++ {
+					for i4 := 0; i4 < len(poker4s); i4++ {
+						for i5 := 0; i5 < len(poker5s); i5++ {
+							n := NewNode()
+							n.normalType = SHUN_ZI
+							for _, poker := range tree.pokers {
+								if poker == poker1s[i1] || poker == poker2s[i2] || poker == poker3s[i3] || poker == poker4s[i4] || poker == poker5s[i5] {
+									n.pokers = append(n.pokers, poker)
+								} else {
+									n.rest = append(n.rest, poker)
 								}
 							}
+							tree.Nodes = append(tree.Nodes, n)
 						}
 					}
 				}
