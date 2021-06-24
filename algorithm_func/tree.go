@@ -3,25 +3,24 @@ package algorithm_func
 import "sort"
 
 type Tree struct {
-	pokers             []*Poker              //用来分节点的牌
-	mapScoreListPoker  map[int][]*Poker      //按点分组
-	mapHuaListPoker    map[PokerHua][]*Poker //按花分组
-	listShunZi         [][2]int              //顺子
-	listTieZhi         []int                 //铁支 int为铁支的分值
-	listSanTiao        []int                 //三条 int为三条的分值
-	listDui            []int                 //对子 int为对子的分值
-	listDanPai         []int                 //单牌 int为单牌的分值
-	Nodes              []*Node               //二叉树的节点
+	pokers            []*Poker              //用来分节点的牌
+	mapScoreListPoker map[int][]*Poker      //按点分组
+	mapHuaListPoker   map[PokerHua][]*Poker //按花分组
+	listShunZi        [][2]int              //顺子
+	listTieZhi        []int                 //铁支 int为铁支的分值
+	listSanTiao       []int                 //三条 int为三条的分值
+	listDui           []int                 //对子 int为对子的分值
+	listDanPai        []int                 //单牌 int为单牌的分值
+	Nodes             []*Node               //二叉树的节点
 }
 
 func NewTree(pokers []*Poker) *Tree {
 	SortPoker(pokers)
 	tree := &Tree{
-		pokers:             pokers,
-		mapHuaListPoker:    make(map[PokerHua][]*Poker, 0),
-		mapScoreListPoker:  make(map[int][]*Poker, 0),
-		Nodes:              make([]*Node, 0),
-
+		pokers:            pokers,
+		mapHuaListPoker:   make(map[PokerHua][]*Poker, 0),
+		mapScoreListPoker: make(map[int][]*Poker, 0),
+		Nodes:             make([]*Node, 0),
 	}
 	tree.Statistic()
 	return tree
@@ -71,7 +70,7 @@ func (this *Tree) statisticsSunZi() {
 		}
 	}
 
-	isHaveSpecialSunZi:= func() bool {
+	isHaveSpecialSunZi := func() bool {
 		specialShunZiSocre := [5]int{14, 2, 3, 4, 5}
 		for _, score := range specialShunZiSocre {
 			if _, ok := this.mapScoreListPoker[score]; !ok {
@@ -82,28 +81,26 @@ func (this *Tree) statisticsSunZi() {
 		return true
 	}
 
-	if isHaveSpecialSunZi(){
+	if isHaveSpecialSunZi() {
 		this.listShunZi = append(this.listShunZi, [2]int{2, 14})
 	}
 }
-
-
 
 //statistics1234 统计单牌，对子，三条，铁支
 func (this *Tree) statistics1234() {
 	var isDanPai = func(poker *Poker) bool {
 		//是否在顺子里
 		for _, shunZi := range this.listShunZi {
-			if poker.Score >= shunZi[0] && poker.Score <= shunZi[1] {
+			if poker.Score >= shunZi[0] && poker.Score <= shunZi[0]+3 && poker.Score != shunZi[1] {
 				return false
 			}
 		}
 
 		//该牌是否在同花里
 		for _, pokers := range this.mapHuaListPoker {
-			if len(pokers)>=5{
+			if len(pokers) >= 5 {
 				for _, p := range pokers {
-					if p==poker{
+					if p == poker {
 						return false
 					}
 				}

@@ -144,26 +144,32 @@ func split(tree *Tree) {
 
 //splitTongHuaSun 拆分出同花顺
 func splitTongHuaSun(tree *Tree) {
+	count := len(tree.listShunZi)
+	if count <= 0 {
+		return
+	}
 
-	for _, pokers := range tree.mapHuaListPoker {
-		count := len(pokers)
-		if count < 5 {
-			continue
-		}
+	for _, shunZi := range tree.listShunZi {
+		poker1s := tree.mapScoreListPoker[shunZi[0]]
+		poker2s := tree.mapScoreListPoker[shunZi[0]+1]
+		poker3s := tree.mapScoreListPoker[shunZi[0]+2]
+		poker4s := tree.mapScoreListPoker[shunZi[0]+3]
+		poker5s := tree.mapScoreListPoker[shunZi[1]]
 
-		for i1 := 0; i1 < count-4; i1++ {
-			for i2 := i1 + 1; i2 < count-3; i2++ {
-				if pokers[i1].Score+1 == pokers[i2].Score {
-					for i3 := i2 + 1; i3 < count-2; i3++ {
-						if pokers[i2].Score+1 == pokers[i3].Score {
-							for i4 := i3 + 1; i4 < count-1; i4++ {
-								if pokers[i3].Score+1 == pokers[i4].Score {
-									for i5 := i4 + 1; i5 < count; i5++ {
-										if pokers[i4].Score+1 == pokers[i5].Score || (pokers[i4].Point == Poker5 && pokers[i5].Point == PokerA) {
+		for i1 := 0; i1 < len(poker1s); i1++ {
+			hua := poker1s[i1].Hua
+			for i2 := 0; i2 < len(poker2s); i2++ {
+				if poker2s[i2].Hua == hua {
+					for i3 := 0; i3 < len(poker3s); i3++ {
+						if poker3s[i3].Hua == hua {
+							for i4 := 0; i4 < len(poker4s); i4++ {
+								if poker4s[i4].Hua == hua {
+									for i5 := 0; i5 < len(poker5s); i5++ {
+										if poker5s[i5].Hua == hua {
 											n := NewNode()
 											n.normalType = TONG_HUA_SHUN
 											for _, poker := range tree.pokers {
-												if poker == pokers[i1] || poker == pokers[i2] || poker == pokers[i3] || poker == pokers[i4] || poker == pokers[i5] {
+												if poker == poker1s[i1] || poker == poker2s[i2] || poker == poker3s[i3] || poker == poker4s[i4] || poker == poker5s[i5] {
 													n.pokers = append(n.pokers, poker)
 												} else {
 													n.rest = append(n.rest, poker)

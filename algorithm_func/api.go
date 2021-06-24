@@ -19,13 +19,14 @@ func CalResult(pokers []*Poker) {
 }
 
 func CalCardType(pokers []*Poker) *Node {
-	n := NewNode()
-	if len(pokers) == 5 {
+	length := len(pokers)
+	switch length {
+	case 5:
 		tree := NewTree(pokers)
 		split(tree)
-		n = tree.Nodes[0]
-	}
-	if len(pokers) == 3 {
+		return tree.Nodes[0]
+	case 3:
+		n := NewNode()
 		n.pokers = pokers
 		if pokers[0].Score == pokers[1].Score && pokers[1].Score == pokers[2].Score {
 			n.normalType = SAN_TIAO
@@ -53,6 +54,9 @@ func CalCardType(pokers []*Poker) *Node {
 		} else {
 			n.normalType = WU_LONG
 		}
+		return n
+	default:
+		return nil
 	}
-	return n
+
 }

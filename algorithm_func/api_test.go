@@ -52,7 +52,7 @@ func TestApi(t *testing.T) {
 
 	for _, info := range infos {
 		info.TestPoker = GenTestPokers(info.Pokers)
-		if info.IsTest {
+		//if info.IsTest {
 			if len(info.TestPoker) == 13 {
 				startTime := time.Now().Nanosecond()
 				fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc, info.Pokers, startTime)
@@ -68,7 +68,7 @@ func TestApi(t *testing.T) {
 				costTime := endTime - startTime
 				fmt.Printf("结束时间=%d,计算牌型=【%s】，AI算法耗时【%d】微秒\n\n", endTime, n.String(), costTime/1000)
 			}
-		}
+		//}
 	}
 }
 
