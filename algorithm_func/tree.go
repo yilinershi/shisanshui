@@ -6,7 +6,6 @@ type Tree struct {
 	pokers             []*Poker              //用来分节点的牌
 	mapScoreListPoker  map[int][]*Poker      //按点分组
 	mapHuaListPoker    map[PokerHua][]*Poker //按花分组
-	mapTongHuaSun      map[PokerHua][2]int   //同花顺
 	isHaveSpecialSunZi bool                  //是否有特殊的顺子，如A2345
 	listShunZi         [][2]int              //顺子
 	listTongHua        []PokerHua            //同花
@@ -23,7 +22,6 @@ func NewTree(pokers []*Poker) *Tree {
 		pokers:             pokers,
 		mapHuaListPoker:    make(map[PokerHua][]*Poker, 0),
 		mapScoreListPoker:  make(map[int][]*Poker, 0),
-		mapTongHuaSun:      make(map[PokerHua][2]int, 0),
 		Nodes:              make([]*Node, 0),
 		isHaveSpecialSunZi: false,
 	}
@@ -74,8 +72,6 @@ func (this *Tree) statisticsSunZi() {
 			_tempStart = 0
 			_tempCount = 1
 		}
-
-
 	}
 }
 

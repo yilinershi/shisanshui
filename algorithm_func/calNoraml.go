@@ -42,36 +42,7 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 			//fmt.Println("middle=", node2.String())
 			if node1.CompareExternal(node2) != Worse {
 				bestScore := 0
-				switch node1.normalType {
-				case TONG_HUA_SHUN:
-					bestScore += 5 + int(node1.normalType)
-				case TIE_ZHI:
-					bestScore += 4 + int(node1.normalType)
-				default:
-					bestScore += 1 + int(node1.normalType)
-				}
-
-				switch node2.normalType {
-				case TONG_HUA_SHUN:
-					bestScore += 10 + int(node2.normalType)
-				case TIE_ZHI:
-					bestScore += 8 + int(node2.normalType)
-				case HU_LU:
-					bestScore += 2 + int(node2.normalType)
-				default:
-					bestScore += 1 + int(node2.normalType)
-				}
-
 				node3 := CalCardType(node2.rest)
-				switch node3.normalType {
-				case SAN_TIAO:
-					bestScore += 3 + int(node3.normalType)
-				case DUI_ZI:
-					bestScore += 2 + int(node3.normalType)
-				default:
-					bestScore += 1 + int(node3.normalType)
-				}
-
 				if node2.CompareExternal(node3) != Worse {
 					result := &ResultNormal{
 						Tail:      node1,
@@ -79,7 +50,32 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 						Head:      node3,
 						BestScore: bestScore,
 					}
-
+					switch node1.normalType {
+					case TONG_HUA_SHUN:
+						bestScore += 5 + int(node1.normalType)
+					case TIE_ZHI:
+						bestScore += 4 + int(node1.normalType)
+					default:
+						bestScore += 1 + int(node1.normalType)
+					}
+					switch node2.normalType {
+					case TONG_HUA_SHUN:
+						bestScore += 10 + int(node2.normalType)
+					case TIE_ZHI:
+						bestScore += 8 + int(node2.normalType)
+					case HU_LU:
+						bestScore += 2 + int(node2.normalType)
+					default:
+						bestScore += 1 + int(node2.normalType)
+					}
+					switch node3.normalType {
+					case SAN_TIAO:
+						bestScore += 3 + int(node3.normalType)
+					case DUI_ZI:
+						bestScore += 2 + int(node3.normalType)
+					default:
+						bestScore += 1 + int(node3.normalType)
+					}
 					normalInfo = append(normalInfo, result)
 				}
 			}
@@ -89,7 +85,7 @@ func CalNormalResults(fatherTree *Tree) []*ResultNormal {
 	return normalInfo
 }
 
-//SortFilterResult 计算出最好的普通牌型,优先保证分值，其次保证上墩，再次保证中墩，最后保证下墩
+//SortFilterResult 计算出值得推荐的普通牌型，step1:优先保证分值，其次保证上墩，再次保证中墩，最后保证下墩，step2:过滤掉重复的类型
 func SortFilterResult(resultList []*ResultNormal) []*ResultNormal {
 	sort.Slice(resultList, func(i, j int) bool {
 		if resultList[i].BestScore > resultList[j].BestScore {
@@ -112,7 +108,6 @@ func SortFilterResult(resultList []*ResultNormal) []*ResultNormal {
 		} else if resultList[i].Middle.CompareExternal(resultList[j].Middle) == Worse {
 			return false
 		}
-
 		return false
 	})
 
@@ -127,10 +122,8 @@ func SortFilterResult(resultList []*ResultNormal) []*ResultNormal {
 			filterRes = append(filterRes, result)
 		}
 	}
-
 	return filterRes
 }
-
 
 //split 将树节点按牌型拆分
 func split(tree *Tree) {
@@ -320,7 +313,6 @@ func splitSunZi(tree *Tree) {
 		}
 	}
 }
-
 
 //splitSanTiao 拆分出三条
 func splitSanTiao(tree *Tree) {
