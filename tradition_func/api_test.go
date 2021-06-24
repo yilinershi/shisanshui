@@ -1,13 +1,12 @@
-package main
+package tradition_func
 
 import (
-	//. "G13s/tradition_func"
-	. "G13s/algorithm_func"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
+	"testing"
 	"time"
 )
 
@@ -32,10 +31,10 @@ func GenTestPokers(Pokers string) []*Poker {
 	return testPokers
 }
 
-func main() {
+func TestApi(t *testing.T) {
 
 	//读取json文件中的测试表
-	jsonFile, err := os.Open("TestCase.json")
+	jsonFile, err := os.Open("../TestCase.json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -53,32 +52,11 @@ func main() {
 
 	for _, info := range infos {
 		info.TestPoker = GenTestPokers(info.Pokers)
-		//TraditionTest(info)
-		AlgorithmTest(info)
+		TraditionTest(info)
 	}
 }
-//
-//func TraditionTest(info *pokerInfo) {
-//	if info.IsTest {
-//		if len(info.TestPoker) == 13 {
-//			startTime := time.Now().Nanosecond()
-//			fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc, info.Pokers, startTime)
-//			CalResult(info.TestPoker)
-//			endTime := time.Now().Nanosecond()
-//			costTime := endTime - startTime
-//			fmt.Printf("结束时间=%d,AI算法耗时【%d】微秒\n\n", endTime, costTime/1000)
-//		} else if len(info.TestPoker) == 5 || len(info.TestPoker) == 3 {
-//			startTime := time.Now().Nanosecond()
-//			fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc, info.Pokers, startTime)
-//			d := NewDun(info.TestPoker)
-//			endTime := time.Now().Nanosecond()
-//			costTime := endTime - startTime
-//			fmt.Printf("结束时间=%d,计算牌型=【%s】，AI算法耗时【%d】微秒\n\n", endTime, d.Type, costTime/1000)
-//		}
-//	}
-//}
 
-func AlgorithmTest(info pokerInfo) {
+func TraditionTest(info pokerInfo) {
 	if info.IsTest {
 		if len(info.TestPoker) == 13 {
 			startTime := time.Now().Nanosecond()
@@ -90,10 +68,11 @@ func AlgorithmTest(info pokerInfo) {
 		} else if len(info.TestPoker) == 5 || len(info.TestPoker) == 3 {
 			startTime := time.Now().Nanosecond()
 			fmt.Printf("测试组合=%s,牌型={%s},开始时间=%d\n", info.Desc, info.Pokers, startTime)
-			n := CalCardType(info.TestPoker)
+			d := NewDun(info.TestPoker)
 			endTime := time.Now().Nanosecond()
 			costTime := endTime - startTime
-			fmt.Printf("结束时间=%d,计算牌型=【%s】，AI算法耗时【%d】微秒\n\n", endTime, n.String(), costTime/1000)
+			fmt.Printf("结束时间=%d,计算牌型=【%s】，AI算法耗时【%d】微秒\n\n", endTime, d.Type, costTime/1000)
 		}
 	}
 }
+
